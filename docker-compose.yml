@@ -1,0 +1,92 @@
+services:
+  aggregator:
+    build: ./aggregator
+    image: uts-aggregator:latest
+    depends_on:
+      storage:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+      consumer:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://user:pass@storage:5432/db
+      BROKER_URL: redis://broker:6379/0
+      APP_WORKERS: "4"
+      PUBLISH_TIMEOUT_SECONDS: "180"
+    ports:
+      - "8080:8080"
+    networks:
+      - pubsub_net
+
+  consumer:
+    build: ./aggregator
+    image: uts-aggregator:latest
+    command: ["python", "-m", "aggregator_app.consumer"]
+    depends_on:
+      storage:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://user:pass@storage:5432/db
+      BROKER_URL: redis://broker:6379/0
+      CONSUMER_WORKERS: "4"
+      REDIS_STREAM: log-events
+      REDIS_CONSUMER_GROUP: log-aggregators
+    networks:
+      - pubsub_net
+
+  publisher:
+    build: ./publisher
+    image: uts-publisher:latest
+    depends_on:
+      - aggregator
+    environment:
+      TARGET_URL: http://aggregator:8080/publish
+      TOTAL_EVENTS: "20000"
+      DUPLICATE_RATE: "0.30"
+      BATCH_SIZE: "250"
+    networks:
+      - pubsub_net
+    profiles:
+      - tools
+
+  broker:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: []
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - broker_data:/data
+    networks:
+      - pubsub_net
+
+  storage:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports: []
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - pubsub_net
+
+networks:
+  pubsub_net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  broker_data:
