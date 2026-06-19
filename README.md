@@ -29,20 +29,20 @@
 
 ## &#128100; Identitas
 
-> *Ujian Akhir Semester &mdash; **Sistem Terdistribusi dan Paralel A***
+> \*Ujian Akhir Semester &mdash; **Sistem Terdistribusi dan Paralel A\***
 
-| Keterangan | Detail |
-| :--- | :--- |
-| **Mata Kuliah** | Sistem Terdistribusi dan Paralel A |
-| **Nama** | Mahardika Arka |
-| **NIM** | `11231037` |
-| **Tema** | *Pub-Sub Log Aggregator Terdistribusi* |
+| Keterangan      | Detail                                 |
+| :-------------- | :------------------------------------- |
+| **Mata Kuliah** | Sistem Terdistribusi dan Paralel A     |
+| **Nama**        | Mahardika Arka                         |
+| **NIM**         | `11231037`                             |
+| **Tema**        | _Pub-Sub Log Aggregator Terdistribusi_ |
 
 ---
 
 ## &#127909; Demo Video
 
-> *Walkthrough lengkap arsitektur, idempotency, dan demo Swagger dalam satu video.*
+> _Walkthrough lengkap arsitektur, idempotency, dan demo Swagger dalam satu video._
 
 <p align="center">
   <a href="https://youtu.be/HZQJCX7mDVI">
@@ -50,19 +50,15 @@
   </a>
 </p>
 
-```text
-YouTube: https://youtu.be/HZQJCX7mDVI
-```
-
 ---
 
 ## &#128221; Ringkasan
 
 Project ini membangun sistem **Pub-Sub Log Aggregator** berbasis multi-service
 Docker Compose. Sistem menerima event log dari publisher, memasukkan event ke
-broker internal, lalu memproses event secara *idempotent* melalui consumer.
+broker internal, lalu memproses event secara _idempotent_ melalui consumer.
 
-*Fokus utama implementasi:*
+_Fokus utama implementasi:_
 
 - **Idempotent consumer**: event yang sama tidak diproses ulang.
 - **Persistent deduplication**: dedup store disimpan di PostgreSQL.
@@ -81,7 +77,7 @@ broker internal, lalu memproses event secara *idempotent* melalui consumer.
   <img src="images/aristektur.png" alt="Arsitektur Pub-Sub Log Aggregator" width="92%">
 </p>
 
-*Alur utama sistem:*
+_Alur utama sistem:_
 
 ```text
 Publisher / Swagger
@@ -101,13 +97,13 @@ PostgreSQL (Events, Dedup Store, Stats)
 
 ### Service Compose
 
-| Service | Teknologi | Peran |
-| --- | --- | --- |
-| `aggregator` | FastAPI + Uvicorn | API utama untuk publish event, melihat event, stats, dan Swagger demo. |
-| `consumer` | Python async worker | Membaca Redis Stream dan memproses event ke PostgreSQL. |
-| `publisher` | Python + HTTPX | Simulator pengirim 20.000 event dengan minimal 30% duplikasi. |
-| `broker` | Redis 7 Alpine | Message broker internal menggunakan Redis Stream dan consumer group. |
-| `storage` | PostgreSQL 16 Alpine | Penyimpanan persisten untuk event, dedup store, dan statistik. |
+| Service      | Teknologi            | Peran                                                                  |
+| ------------ | -------------------- | ---------------------------------------------------------------------- |
+| `aggregator` | FastAPI + Uvicorn    | API utama untuk publish event, melihat event, stats, dan Swagger demo. |
+| `consumer`   | Python async worker  | Membaca Redis Stream dan memproses event ke PostgreSQL.                |
+| `publisher`  | Python + HTTPX       | Simulator pengirim 20.000 event dengan minimal 30% duplikasi.          |
+| `broker`     | Redis 7 Alpine       | Message broker internal menggunakan Redis Stream dan consumer group.   |
+| `storage`    | PostgreSQL 16 Alpine | Penyimpanan persisten untuk event, dedup store, dan statistik.         |
 
 Semua service berjalan di network lokal Compose `pubsub_net`. Hanya
 `aggregator` yang diekspos ke host melalui port `8080`; Redis dan PostgreSQL
@@ -138,16 +134,16 @@ deduplication.
 
 ## &#128225; API Endpoint
 
-| Method | Endpoint | Fungsi |
-| --- | --- | --- |
-| `GET` | `/health` | Mengecek koneksi API, PostgreSQL, dan Redis. |
-| `POST` | `/publish` | Menerima single event atau batch event. |
-| `GET` | `/events?topic=...` | Menampilkan event unik yang sudah diproses. |
-| `GET` | `/stats` | Menampilkan statistik global sistem. |
-| `POST` | `/demo/publish-single` | Demo publish satu event. |
-| `POST` | `/demo/publish-duplicate` | Demo duplicate event dan idempotency. |
-| `POST` | `/demo/publish-batch` | Demo batch event dan performa 20.000 event. |
-| `POST` | `/demo/concurrency` | Demo request paralel untuk uji race condition. |
+| Method | Endpoint                  | Fungsi                                         |
+| ------ | ------------------------- | ---------------------------------------------- |
+| `GET`  | `/health`                 | Mengecek koneksi API, PostgreSQL, dan Redis.   |
+| `POST` | `/publish`                | Menerima single event atau batch event.        |
+| `GET`  | `/events?topic=...`       | Menampilkan event unik yang sudah diproses.    |
+| `GET`  | `/stats`                  | Menampilkan statistik global sistem.           |
+| `POST` | `/demo/publish-single`    | Demo publish satu event.                       |
+| `POST` | `/demo/publish-duplicate` | Demo duplicate event dan idempotency.          |
+| `POST` | `/demo/publish-batch`     | Demo batch event dan performa 20.000 event.    |
+| `POST` | `/demo/concurrency`       | Demo request paralel untuk uji race condition. |
 
 Swagger UI tersedia di:
 
@@ -258,12 +254,12 @@ http://127.0.0.1:8080/docs
 
 Gunakan endpoint pada tag **Demo Use Cases**:
 
-| Demo | Endpoint | Hasil yang Diharapkan |
-| --- | --- | --- |
-| Single event | `/demo/publish-single` | `received=1`, `unique_processed=1`, `duplicate_dropped=0` |
-| Duplicate event | `/demo/publish-duplicate?copies=5` | `received=5`, `unique_processed=1`, `duplicate_dropped=4` |
-| Batch 20.000 event | `/demo/publish-batch?total=20000&duplicate_rate=0.30` | Sekitar `14000` unique dan `6000` duplicate |
-| Concurrency | `/demo/concurrency?requests=50` | `unique_processed=1`, sisanya duplicate |
+| Demo               | Endpoint                                              | Hasil yang Diharapkan                                     |
+| ------------------ | ----------------------------------------------------- | --------------------------------------------------------- |
+| Single event       | `/demo/publish-single`                                | `received=1`, `unique_processed=1`, `duplicate_dropped=0` |
+| Duplicate event    | `/demo/publish-duplicate?copies=5`                    | `received=5`, `unique_processed=1`, `duplicate_dropped=4` |
+| Batch 20.000 event | `/demo/publish-batch?total=20000&duplicate_rate=0.30` | Sekitar `14000` unique dan `6000` duplicate               |
+| Concurrency        | `/demo/concurrency?requests=50`                       | `unique_processed=1`, sisanya duplicate                   |
 
 Setiap response demo menyertakan `result` dan `stats`, sehingga cocok untuk
 presentasi video tanpa harus berpindah ke banyak terminal.
@@ -280,11 +276,11 @@ docker compose --profile tools run --rm publisher
 
 Default konfigurasi:
 
-| Variabel | Nilai |
-| --- | --- |
-| `TOTAL_EVENTS` | `20000` |
-| `DUPLICATE_RATE` | `0.30` |
-| `BATCH_SIZE` | `250` |
+| Variabel         | Nilai   |
+| ---------------- | ------- |
+| `TOTAL_EVENTS`   | `20000` |
+| `DUPLICATE_RATE` | `0.30`  |
+| `BATCH_SIZE`     | `250`   |
 
 Contoh override:
 
@@ -358,18 +354,18 @@ Cakupan test:
 
 ## &#128203; Bukti Requirement
 
-| Requirement | Implementasi |
-| --- | --- |
+| Requirement                  | Implementasi                                               |
+| ---------------------------- | ---------------------------------------------------------- |
 | Multi-service Docker Compose | `aggregator`, `consumer`, `publisher`, `broker`, `storage` |
-| Message broker internal | Redis Stream |
-| Storage persisten | PostgreSQL dengan named volume `pg_data` |
-| Idempotent consumer | Dedup berdasarkan `(topic, event_id)` |
-| Dedup persisten | Tabel `processed_events` dengan unique constraint |
-| Transaksi | `connection.transaction(isolation="read_committed")` |
-| Kontrol konkurensi | `INSERT ... ON CONFLICT DO NOTHING RETURNING id` |
-| Observability | `/health`, `/events`, `/stats`, logging consumer |
-| Performa minimum | Demo batch 20.000 event dengan 30% duplikasi |
-| Tests | 20 automated tests |
+| Message broker internal      | Redis Stream                                               |
+| Storage persisten            | PostgreSQL dengan named volume `pg_data`                   |
+| Idempotent consumer          | Dedup berdasarkan `(topic, event_id)`                      |
+| Dedup persisten              | Tabel `processed_events` dengan unique constraint          |
+| Transaksi                    | `connection.transaction(isolation="read_committed")`       |
+| Kontrol konkurensi           | `INSERT ... ON CONFLICT DO NOTHING RETURNING id`           |
+| Observability                | `/health`, `/events`, `/stats`, logging consumer           |
+| Performa minimum             | Demo batch 20.000 event dengan 30% duplikasi               |
+| Tests                        | 20 automated tests                                         |
 
 ---
 
@@ -408,7 +404,7 @@ Cakupan test:
 
 ## &#128221; Catatan Laporan
 
-*Keputusan desain utama yang perlu disorot pada laporan dan video:*
+_Keputusan desain utama yang perlu disorot pada laporan dan video:_
 
 - delivery diasumsikan **at-least-once**,
 - Redis Stream menjadi broker Pub-Sub internal,
