@@ -45,13 +45,13 @@
 > *Walkthrough lengkap arsitektur, idempotency, dan demo Swagger dalam satu video.*
 
 <p align="center">
-  <a href="https://youtu.be/PLACEHOLDER">
+  <a href="https://youtu.be/HZQJCX7mDVI">
     <img src="https://img.shields.io/badge/Tonton_di_YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Demo">
   </a>
 </p>
 
 ```text
-YouTube: https://youtu.be/PLACEHOLDER   (link menyusul)
+YouTube: https://youtu.be/HZQJCX7mDVI
 ```
 
 ---
